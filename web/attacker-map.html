@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Unauthorised Access Map Overlay</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" type="image/x-icon" href="/raspi/static/favicon.ico" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js" integrity="sha512-V8RRDnS4BZXrat3GIpnWx+XNYBHQGdK6nKOzMpX4R0hz9SPWt7fltGmmyGzUkVFZUQODO1rE+SWYJJkw3SYMhg==" crossorigin=""></script>
+  <style>body { padding: 0; margin: 0; } html, body, #map { height: 100%; width: 100vw; }</style>
+</head>
+
+<body>
+  <div id='map'></div>
+  <script src="attacks-geojson.js" type="text/javascript"></script>
+  <script>
+
+  // Insert Mapbox API key here
+  var AccessToken='<INSERT_MAPBOX_API_KEY_HERE>';
+
+  var mapurl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + AccessToken;
+  var mapattribStreet = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+  var mapattribSat = 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+
+  var bounds = L.latLngBounds([85, 180],[-85, -180]);
+  var streets = L.tileLayer(mapurl, {id: 'mapbox/streets-v11', maxZoom: 18, bounds: bounds, noWrap: true, attribution: mapattribStreet});
+  var satellite = L.tileLayer(mapurl, {id: 'mapbox/satellite-v9', maxZoom: 18, bounds: bounds, noWrap: true, attribution: mapattribSat});
+  var map = L.map('map', {maxBounds: bounds, layers: streets}).fitWorld();
+  var baseLayers = {"Map": streets, "Satellite": satellite};
+
+  var wantedZoom = map.getBoundsZoom(bounds, true);
+  var oms = new OverlappingMarkerSpiderfier (map,{keepSpiderfied:true});
+  var popup = new L.Popup({closeButton:false,offset:new L.Point(0.5,-24)});
+  oms.addListener("spiderfy", function(markers) { map.closePopup();});
+  oms.addListener("unspiderfy", function(markers) { map.closePopup();});
+  map.setView(new L.LatLng(15, 0), wantedZoom);
+
+  L.control.layers(baseLayers).addTo(map);
+
+  L.geoJSON(attackers, {
+    style: function (feature) {
+      return feature.properties && feature.properties.style;
+     },
+     onEachFeature: function (feature, latlng) {
+       oms.addMarker(latlng);
+     }
+  }).addTo(map);
+
+  oms.addListener('click', function(marker) {
+    popup.setContent(marker.feature.properties.popupContent);
+    popup.setLatLng(marker.getLatLng());
+    map.openPopup(popup);
+  });
+
+</script>
+
+</body>
+</html>
+
