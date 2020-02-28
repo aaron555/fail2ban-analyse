@@ -26,7 +26,7 @@
 # 25/01/2015 - Added compatibility with Fedora logs
 # 20/02/2020 - Converted to python3 (explicitly convert inputs from files to text and dict objects to lists)
 
-# Copyright (C) Aaron Lockton 2014-2020
+# Copyright (C) 2015, 2020 Aaron Lockton
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

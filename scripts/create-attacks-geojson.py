@@ -14,7 +14,7 @@
 # Changelog
 # 16/02/2020 - First Version
 
-# Copyright (C) Aaron Lockton 2020
+# Copyright (C) 2020 Aaron Lockton
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

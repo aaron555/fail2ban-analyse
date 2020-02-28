@@ -1,7 +1,7 @@
 #!/bin/bash
 # Wrapper process to run fail2ban analysis, process and store results, and publish to web server
 
-# Copyright (C) Aaron Lockton 2020
+# Copyright (C) 2020 Aaron Lockton
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,9 +53,10 @@ TEMP_DIR=/tmp/fail2ban-analyse
 mkdir -p "${TEMP_DIR}"
 rm -f "${TEMP_DIR}/"*.{csv,txt,png,js}
 pushd "${TEMP_DIR}" > /dev/null
+TESTFILE=testfile_$(date +%s).txt
 
 # Check if temp dir exists, and we are in it
-if [[ ! -d "${TEMP_DIR}" ]] || [[ "${PWD}" != "${TEMP_DIR}" ]] || ! touch testfile.txt 2>/dev/null; then
+if [[ ! -d "${TEMP_DIR}" ]] || [[ "${PWD}" != "${TEMP_DIR}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
   echo "WARNING: Cannot create / access / create files in default temporary directory ${TEMP_DIR} - trying relative path 'tmp/fail2ban-analyse'"
   popd > /dev/null
   # If cannot use default location, try relative path instead
@@ -64,15 +65,16 @@ if [[ ! -d "${TEMP_DIR}" ]] || [[ "${PWD}" != "${TEMP_DIR}" ]] || ! touch testfi
   rm -f "${TEMP_DIR}/"*.{csv,txt,png,js}
   TEMP_DIR_ABS=$(readlink -f "${TEMP_DIR}")
   pushd "${TEMP_DIR}" > /dev/null
-  if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touch testfile.txt 2>/dev/null; then
+  if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
     echo "ERROR:  Cannot create / access / create files in failover temporary directory ${TEMP_DIR} -  check permissions or if conflicting file exists"
     exit 1
   fi
 fi
+rm -f "${TESTFILE}"
 
 # Generate list of usernames from failed login attempts - note this is optional, script will function with no username analysis (SSH only)
 echo "Attempting to analyse auth/secure logs in ${F2B_LOG_DIR} to determine usernames of failed ssh attempts..."
-USERNAME_FILELIST=$(find "${F2B_LOG_DIR_ABS}" \( -name "secure*" -o -name "auth*" \) -exec file {} \; | grep text | cut -d: -f1)
+USERNAME_FILELIST=$(find "${F2B_LOG_DIR_ABS}" -maxdepth 1 \( -name "secure*" -o -name "auth*" \) -exec file {} \; | grep text | cut -d: -f1)
 if [[ ! -z ${USERNAME_FILELIST} ]]; then
   # Filelist contains all uncompressed logs from either Debian or Fedora/CentOS systems - note variable unquoted to work with grep
   grep ssh ${USERNAME_FILELIST} | sed -n 's/.*invalid user \([^ ]*\).*/\1/p' | grep -v '\\(\[\^' | grep -v '^$' | sort > usernames.txt
@@ -99,6 +101,9 @@ mv -v *_fail2ban_country_hist_all.png "${OUTPUT_DIR_WEB_ABS}/unauth-country.png"
 
 if [[ -d "${OUTPUT_DIR_HISTORICAL_ABS}" ]]; then
   cp *.{csv,txt,png} "${OUTPUT_DIR_HISTORICAL_ABS}"
+else
+  echo "WARNING: Specified output directory for archiving full output ${OUTPUT_DIR_HISTORICAL} does not exist, only updating main web content"
+  echo "Create ${OUTPUT_DIR_HISTORICAL} or change config to store all historical data (PNG,CSV,TXT with no overwriting)"
 fi
 
 # Prepare CSV input and create GeoJSON (create-attacks-geojson.py)
