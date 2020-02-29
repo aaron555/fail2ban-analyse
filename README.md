@@ -7,7 +7,7 @@ These scripts analyse Fail2ban logfiles to show the how the rate of attacks vari
 
 ## How to use
 
-The simplest way to get started is to run the wrapper script straight from the root of the repo (assuming you have logs in default /var/log/)
+Ensure curl is installed, and Python3 with matplotlib and geojson modules. The simplest way to get started is to run the wrapper script straight from the root of the repo (assuming you have logs in default /var/log/)
 `./fail2ban_analyse_wrapper.sh`
 This will run full analysis on all available logs in /var/log, and store full results in _outputs_ and generated web content in _web_
 
@@ -16,7 +16,7 @@ To change any of the input or output directories, edit _config/fail2ban_analyse.
 After running, the contents of _web_ can then be moved to your webserver directory (the map overlays only work in-browser, although all other images are output as static PNGs).  Note _attacker-map.html_ requires editing to add your mapbox API key, whereas _attacker-map-openstreetmap.html_ works straight out of the box.
 
 The wrapper shell script calls the two main Python scripts:
-- _scripts/fail2ban_analyse.py_ which parses and analyses fail2ban (and optionally auth/secure) logs and performs geo-lookup for all the IPs found, returning results in TXT, CSV and PNG formats.  
+- _scripts/fail2ban_analyse.py_ which parses and analyses fail2ban (and optionally auth/secure) logs and performs geo-lookup for all the IPs found, returning results in TXT, CSV and PNG formats.
 - _scripts/create-attacks-geojson.py_ which converts one of the CSV outputs above into a GeoJSON file which can be used to overlay IPs and number of attacks on a map
 
 ## Example outputs
@@ -27,9 +27,9 @@ The wrapper shell script calls the two main Python scripts:
 
 ## Requirements
 
-- Python3 with standard modules + matplotlib and geojson
+- Python3 with standard modules + **matplotlib** and **geojson**
 - A webserver for displaying map overlay
-- Standard Linux CLI tools including curl
+- Standard Linux CLI tools including **curl**
 - Only tested on Linux
 
 ## Inputs
@@ -58,12 +58,12 @@ In full output directory (_outputs/_ or value of OUTPUT_DIR_HISTORICAL set in th
 yyyymmdd_fail2ban_all_raw_logs.txt - all raw input logs, un-rotated, uncompressed and appended in timestamp order
 yyyymmdd_fail2ban_attack_by_country_all_IPs.csv - list of countries with absolute number of attacks and percentage (raw data for chart below)
 yyyymmdd_fail2ban_attack_by_country_unique_IPs.csv - list of countries with absolute number of unique IPs and percentage (raw data for chart below)
-yyyymmdd_fail2ban_attack_by_country_unique_subnet.csv - list of countries with absolute number of unique IP submeta (assuming /24) and percentage (raw data for chart below)
+yyyymmdd_fail2ban_attack_by_country_unique_subnet.csv - list of countries with absolute number of unique IP subnet (assuming /24) and percentage (raw data for chart below)
 yyyymmdd_fail2ban_attack_IPs_all.csv - list of all attacks showing timestamp, IP, country, approximate coordinates
 yyyymmdd_fail2ban_attack_IPs_unique.csv - list of all attacks showing IP, number of attacks, country, approximate coordinates
 yyyymmdd_fail2ban_attack_IPs_unique_subnet.csv - list of all attacks showing IP subnet (grouping into /24), number of attacks, country, approximate coordinates
-yyyymmdd_fail2ban_attacks_per_day_bar.png - bar chart showing number of attacks per day, and summary of worst offenders
-yyyymmdd_fail2ban_country_hist_all.png - bar chart of attack origin by country, expressed as percentage 
+yyyymmdd_fail2ban_attacks_per_day_bar.png - bar chart showing number of attacks per day, and summary of worst offenders (same as unauth.png)
+yyyymmdd_fail2ban_country_hist_all.png - bar chart of attack origin by country, expressed as percentage (same as unauth-country.png)
 yyyymmdd_fail2ban_country_hist_unique_IP.png - bar chart of IP address origin by country, expressed as percentage
 yyyymmdd_fail2ban_country_hist_unique_subnet.png - bar chart of IP subnet (grouping into /24) origin by country, expressed as percentage
 yyyymmdd_fail2ban_log_analysis_summary.txt text summary of key results

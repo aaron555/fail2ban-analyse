@@ -49,15 +49,15 @@ if [[ ! -d "${OUTPUT_DIR_HISTORICAL_ABS}" ]]; then
 fi
 
 # Set up temporary location and check accessible (must be absolute path - try standard Linux temporary location)
-TEMP_DIR=/tmp/fail2ban-analyse
-mkdir -p "${TEMP_DIR}"
-rm -f "${TEMP_DIR}/"*.{csv,txt,png,js}
-pushd "${TEMP_DIR}" > /dev/null
+TEMP_DIR_ABS=/tmp/fail2ban-analyse
+mkdir -p "${TEMP_DIR_ABS}"
+rm -f "${TEMP_DIR_ABS}/"*.{csv,txt,png,js}
+pushd "${TEMP_DIR_ABS}" > /dev/null
 TESTFILE=testfile_$(date +%s).txt
 
 # Check if temp dir exists, and we are in it
-if [[ ! -d "${TEMP_DIR}" ]] || [[ "${PWD}" != "${TEMP_DIR}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
-  echo "WARNING: Cannot create / access / create files in default temporary directory ${TEMP_DIR} - trying relative path 'tmp/fail2ban-analyse'"
+if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
+  echo "WARNING: Cannot create / access / create files in default temporary directory ${TEMP_DIR_ABS} - trying relative path 'tmp/fail2ban-analyse'"
   popd > /dev/null
   # If cannot use default location, try relative path instead
   TEMP_DIR=tmp/fail2ban-analyse
@@ -66,8 +66,8 @@ if [[ ! -d "${TEMP_DIR}" ]] || [[ "${PWD}" != "${TEMP_DIR}" ]] || ! touch "${TES
   TEMP_DIR_ABS=$(readlink -f "${TEMP_DIR}")
   pushd "${TEMP_DIR}" > /dev/null
   if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
-    echo "ERROR:  Cannot create / access / create files in failover temporary directory ${TEMP_DIR} -  check permissions or if conflicting file exists"
-    exit 1
+    echo "ERROR:  Cannot create / access / create files in failover temporary directory ${TEMP_DIR_ABS} -  check permissions or if conflicting file exists"
+    exit 1temp
   fi
 fi
 rm -f "${TESTFILE}"
