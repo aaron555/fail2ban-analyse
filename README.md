@@ -13,7 +13,7 @@ This will run full analysis on all available logs in /var/log, and store full re
 
 To change any of the input or output directories, edit _config/fail2ban_analyse.conf_
 
-After running, the contents of _web_ can then be moved to your webserver directory (the map overlays only work in-browser, although all other images are output as static PNGs).  Note _attacker-map.html_ requires editing to add your mapbox API key, whereas _attacker-map-openstreetmap.html_ works straight out of the box.
+After running, the contents of _web_ can be moved to your webserver directory (the map overlays only work in-browser, although a server is not necessarily needed and all other images are output as static PNGs).  Note _attacker-map.html_ requires editing to add your mapbox API key, whereas _attacker-map-openstreetmap.html_ works straight out of the box.
 
 The wrapper shell script calls the two main Python scripts:
 - _scripts/fail2ban_analyse.py_ which parses and analyses fail2ban (and optionally auth/secure) logs and performs geo-lookup for all the IPs found, returning results in TXT, CSV and PNG formats.
@@ -28,8 +28,8 @@ The wrapper shell script calls the two main Python scripts:
 ## Requirements
 
 - Python3 with standard modules + **matplotlib** and **geojson**
-- A webserver for displaying map overlay
 - Standard Linux CLI tools including **curl**
+- (optional) A webserver for displaying map overlay (or view locally in browser)
 - Only tested on Linux
 
 ## Inputs
@@ -68,6 +68,7 @@ yyyymmdd_fail2ban_country_hist_unique_IP.png - bar chart of IP address origin by
 yyyymmdd_fail2ban_country_hist_unique_subnet.png - bar chart of IP subnet (grouping into /24) origin by country, expressed as percentage
 yyyymmdd_fail2ban_log_analysis_summary.txt text summary of key results
 yyyymmdd_fail2ban_raw_attacker_info.txt - raw JSON results of ipinfo.io lookup - this may also be used as an input to avoid re-running lookup
+usernames.txt - (if valid uncompressed auth*/secure* logs found in input log directory, SSH only) a list of invalid usernames used in failed SSH access attempts
 ```
 
 ## Dependencies
@@ -75,7 +76,7 @@ yyyymmdd_fail2ban_raw_attacker_info.txt - raw JSON results of ipinfo.io lookup -
 - ipinfo.io is used for geolocation of IP addresseses.  If calling _fail2ban_analyse.py_ a command line argument can be used to specify an existing results file from a previous lookup, or skip look-up altogether (with reduced functionality).  Requests to ipinfo.io API are subject to their terms of use and limits on number of lookups - paid plans are required for heavier use.
 - Mapbox API key is required if using Mapbox (_attacker-map.html_).  You can obtain this for free by signing up with Mapbox.  Openstreetmap version (_attacker-map-openstreetmap.html_) does not require this.
 - CDNs are used for Leaflet and OMS, for a fully locally hosted version simply download leaflet (leaflet.js, leaflet.css and images directory) and OMS (oms.min.js) and edit the html accordingly
-- a favicon is referenced at _favicon.ico_ in same directory as the map htmls files but not supplied and may be added if required
+- a favicon is referenced at _favicon.ico_ in same directory as the map html files but not supplied and may be added if required
 
 ## Automation
 

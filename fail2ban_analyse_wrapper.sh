@@ -96,8 +96,8 @@ echo "--------------------------------------------------------------------------
 
 # Move static content to web directory
 # NOTE - add any output files that are to be published on web server here - not as well as moving renames from datestamped format to static filename
-mv -v *_fail2ban_attacks_per_day_bar.png "${OUTPUT_DIR_WEB_ABS}/unauth.png"
-mv -v *_fail2ban_country_hist_all.png "${OUTPUT_DIR_WEB_ABS}/unauth-country.png"
+cp -v *_fail2ban_attacks_per_day_bar.png "${OUTPUT_DIR_WEB_ABS}/unauth.png"
+cp -v *_fail2ban_country_hist_all.png "${OUTPUT_DIR_WEB_ABS}/unauth-country.png"
 
 if [[ -d "${OUTPUT_DIR_HISTORICAL_ABS}" ]]; then
   cp *.{csv,txt,png} "${OUTPUT_DIR_HISTORICAL_ABS}"
