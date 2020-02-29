@@ -448,7 +448,7 @@ country_unique_filename = filename_stub+"_attack_by_country_unique_IPs.csv"
 print("Writing logs of all attacks from unique IP sorted by country to %s" % country_unique_filename)
 counter = 0
 with open(country_unique_filename, "w") as f:
-  f.write("Country,Number of Attacks,Percentage\n")
+  f.write("Country,Number of IPs,Percentage\n")
   for line in countries_unique:
     f.write("%s,%s,%s\n" % (countries_unique[country_indices_unique[counter]], num_unique[country_indices_unique[counter]], pc_unique[country_indices_unique[counter]]))
     counter += 1
@@ -466,7 +466,7 @@ country_subnet_filename = filename_stub+"_attack_by_country_unique_subnet.csv"
 print("Writing logs of all attacks from unique subnet (/24) sorted by country to %s" % country_subnet_filename)
 counter = 0
 with open(country_subnet_filename, "w") as f:
-  f.write("Country,Number of Attacks,Percentage\n")
+  f.write("Country,Number of subnets,Percentage\n")
   for line in countries_subnet:
     f.write("%s,%s,%s\n" % (countries_subnet[country_indices_subnet[counter]], num_subnet[country_indices_subnet[counter]], pc_subnet[country_indices_subnet[counter]]))
     counter += 1

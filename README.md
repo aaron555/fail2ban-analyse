@@ -70,6 +70,7 @@ yyyymmdd_fail2ban_log_analysis_summary.txt text summary of key results
 yyyymmdd_fail2ban_raw_attacker_info.txt - raw JSON results of ipinfo.io lookup - this may also be used as an input to avoid re-running lookup
 usernames.txt - (if valid uncompressed auth*/secure* logs found in input log directory, SSH only) a list of invalid usernames used in failed SSH access attempts
 ```
+(note country / coordinate info will not be available if nolookup option is used to prevent ipinfo.io lookups)
 
 ## Dependencies
 

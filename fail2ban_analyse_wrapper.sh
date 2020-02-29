@@ -67,7 +67,7 @@ if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touc
   pushd "${TEMP_DIR}" > /dev/null
   if [[ ! -d "${TEMP_DIR_ABS}" ]] || [[ "${PWD}" != "${TEMP_DIR_ABS}" ]] || ! touch "${TESTFILE}" 2>/dev/null; then
     echo "ERROR:  Cannot create / access / create files in failover temporary directory ${TEMP_DIR_ABS} -  check permissions or if conflicting file exists"
-    exit 1temp
+    exit 1
   fi
 fi
 rm -f "${TESTFILE}"
