@@ -128,7 +128,7 @@ if len(raw_log) == 0:
   sys.exit(1)
 
 
-# Write file with all raw logs
+# Write file with all raw logs (yyyymmdd_fail2ban_all_raw_logs.txt)
 filename_stub = strftime("%Y%m%d_fail2ban", gmtime())
 raw_log_filename = filename_stub+"_all_raw_logs.txt"
 print("Writing raw logs to %s" % raw_log_filename)
@@ -152,7 +152,7 @@ if len(datestamp) == 0:
   print("WARNING: No banned IPs found in supplied logfile(s) - either logfile(s) not recognised fail2ban log format, or no IPs were banned during the analysis period - exiting...")
   # Note this is not necessarily an error - could be simply no banned IPs in analysis period
   sys.exit(0)
-# Write log all all banned IPs with timestamps
+# Write log all all banned IPs with timestamps (yyyymmdd_fail2ban_attack_IPs_all.csv - no geolocatiom)
 print("Log covers attacks from %s to %s" % (datestamp[0], datestamp[-1]))
 IP_log_filename = filename_stub+"_attack_IPs_all.csv"
 print("Writing log of all attack IPs with timestamps to %s" % IP_log_filename)
@@ -180,7 +180,7 @@ worst_IPs = ("1-%s (%s); 2-%s (%s); 3-%s (%s)" % \
   IP_unique[sort_indices[-2]], num_attacks[sort_indices[-2]], \
   IP_unique[sort_indices[-3]], num_attacks[sort_indices[-3]]))
 print("Top 3 offenders: " +worst_IPs)
-# Write unique banned IPs to log
+# Write unique banned IPs to log (yyyymmdd_fail2ban_attack_IPs_unique.csv - no geolocation)
 print("Writing log of all UNIQUE attack IPs to %s" % IP_unique_filename)
 f = open(IP_unique_filename, "w")
 f.write("IP address,Number of Attacks\n")
@@ -211,14 +211,14 @@ worst_subnets =  ("1-%s.x (%s); 2-%s.x (%s); 3-%s.x (%s)" % \
   IP_unique_subnet[sort_indices_subnet[-2]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-2]], \
   IP_unique_subnet[sort_indices_subnet[-3]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-3]]))
 print("Top 3 subnets (/24): " + worst_subnets)
-# Save logs of unique-subnet data
+# Save logs of unique-subnet data (yyyymmdd_fail2ban_attack_IPs_unique_subnet.csv - no geolocation)
 IP_subnet_filename = filename_stub+"_attack_IPs_unique_subnet.csv"
 print("Writing log of all UNIQUE SUBNETS (assume /24) to %s" % IP_subnet_filename)
 f = open(IP_subnet_filename, "w")
 f.write("Subnet (/24),Number of Attacks\n")
 counter = 0
 for line in IP_unique_subnet:
-  f.write("%s,%s\n" % (line, num_attacks_subnet[counter]))
+  f.write("%s,%s\n" % (line.rsplit(".",1)[0]+".0", num_attacks_subnet[counter]))
   counter+= 1
 f.close
 
@@ -275,7 +275,7 @@ for ele in datestamp:
     prev_day = line_day
 datenums.append(prev_day)
 num_attacks_day.append(total_today)
-# Plot bar chart
+# Plot bar chart (yyyymmdd_fail2ban_attacks_per_day_bar.png)
 fig, ax = plt.subplots(1)
 plt.bar(datenums, num_attacks_day)
 ax.xaxis_date()
@@ -367,7 +367,7 @@ lon_lookup_count = len(attacker_info_lons)-attacker_info_lons.count("")
 print("Searched info for %d IPs: found %d IP addresses, %d countries, %d lats and %d lons" % \
   (len(IP_unique), IP_lookup_count, country_lookup_count, lat_lookup_count, lon_lookup_count))
 
-# If ipinfo lookup has consistent number of results with query, update results with location info and # attacks
+# If ipinfo lookup has consistent number of results with query, update results with location info and # attacks (yyyymmdd_fail2ban_attack_IPs_unique.csv - including geolocation)
 if (len(IP_unique) == len(attacker_info_IPs) and len(IP_unique) == len(attacker_info_countries)) and len(IP_unique) == len(attacker_info_lats):
   print("Updating log of all UNIQUE attack IPs in %s to include location info" % IP_unique_filename)
   f = open(IP_unique_filename, "w")
@@ -383,7 +383,7 @@ else:
   print("Country look-up data not available or incomplete - exiting")
   sys.exit(1)
 
-# Use unique IP data as look-up table to add country to all-attack logs
+# Use unique IP data as look-up table to add country to all-attack logs (yyyymmdd_fail2ban_attack_IPs_all.csv - including geolocation)
 print("Updating log of all attack IPs in %s to include location info" % IP_log_filename)
 f = open(IP_log_filename, "w")
 f.write("Timestamp,IP address,Country,Latitude,Longitude\n")
@@ -400,7 +400,7 @@ for line in IP:
   counter+= 1
 f.close
 
-# Use unique IP data as look-up table to add country to attack-unique-subnet logs
+# Use unique IP data as look-up table to add country to attack-unique-subnet logs (yyyymmdd_fail2ban_attack_IPs_unique_subnet.csv - including geolocation)
 print("Updating log of all UNIQUE SUBNETS (assumes all IPs in /24 subnet co-located) in %s to include location info" % IP_subnet_filename)
 f = open(IP_subnet_filename, "w")
 f.write("Subnet (/24),Number of Attacks,Country,Latitude,Longitude\n")
@@ -413,11 +413,11 @@ for line in IP_unique_subnet:
   attacker_info_countries_subnet.append(attacker_info_countries[IP_unique_index])
   attacker_info_lats_subnet.append(attacker_info_lats[IP_unique_index])
   attacker_info_lons_subnet.append(attacker_info_lons[IP_unique_index])
-  f.write("%s,%s,%s,%s,%s\n" % (line, num_attacks_subnet[counter], attacker_info_countries_subnet[counter], attacker_info_lats_subnet[counter], attacker_info_lons_subnet[counter]))
+  f.write("%s.0,%s,%s,%s,%s\n" % (line.rsplit(".",1)[0], num_attacks_subnet[counter], attacker_info_countries_subnet[counter], attacker_info_lats_subnet[counter], attacker_info_lons_subnet[counter]))
   counter+= 1
 f.close
 
-# Create histogram tables to calculate country percentage of attacks for all IPs
+# Create histogram tables to calculate country percentage of attacks for all IPs (yyyymmdd_fail2ban_attack_by_country_all_IPs.csv)
 hist_all = Counter()
 for line in attacker_info_countries_all:
   hist_all[line] += 1
@@ -435,7 +435,7 @@ with open(country_all_filename, "w") as f:
     f.write("%s,%s,%s\n" % (countries_all[country_indices_all[counter]], num_all[country_indices_all[counter]], pc_all[country_indices_all[counter]]))
     counter += 1
 
-# Create histogram tables to calculate country percentage of attacks for unique IPs
+# Create histogram tables to calculate country percentage of attacks for unique IPs (yyyymmdd_fail2ban_attack_by_country_unique_IPs.csv)
 hist_unique = Counter()
 for line in attacker_info_countries:
   hist_unique[line] += 1
@@ -453,7 +453,7 @@ with open(country_unique_filename, "w") as f:
     f.write("%s,%s,%s\n" % (countries_unique[country_indices_unique[counter]], num_unique[country_indices_unique[counter]], pc_unique[country_indices_unique[counter]]))
     counter += 1
 
-# Create histogram tables to calculate country percentage of attacks for unique subnets
+# Create histogram tables to calculate country percentage of attacks for unique subnets (yyyymmdd_fail2ban_attack_by_country_unique_subnet.csv)
 hist_subnet = Counter()
 for line in attacker_info_countries_subnet:
   hist_subnet[line] += 1
@@ -481,7 +481,7 @@ with open(summary_filename, "a") as f:
   countries_all[country_indices_all[2]], num_all[country_indices_all[2]]))
   f.write("Analysis took %.1f seconds" % (time.time()-start_time))
 
-# Plot country histograms - all
+# Plot country histograms - all (yyyymmdd_fail2ban_country_hist_all.png)
 print("Plotting and saving graphs with country data...")
 max_countries_plot = 25    # Set max number of x axis items on histogramps
 max_countries_plot = min(max_countries_plot, len(countries_all))
@@ -502,7 +502,7 @@ plt.title("Attacks by country - all attacks\nFrom %s to %s (%s attacks)" % \
 plt.xlim(countries_x[0]-1, countries_x[-1]+1)
 plt.savefig(filename_stub+"_country_hist_all.png", format='png', dpi=300)
 
-# Plot country histograms - unique
+# Plot country histograms - unique (yyyymmdd_fail2ban_country_hist_unique_IP.png)
 pc_unique_plot =[]
 countries_unique_plot = []
 for ii in range(0,max_countries_plot):
@@ -511,13 +511,13 @@ for ii in range(0,max_countries_plot):
 fig, ax = plt.subplots(1)
 plt.bar(countries_x, pc_unique_plot, align='center')
 plt.xticks(countries_x, countries_unique_plot)
-plt.ylabel('Proportion of attacks (%)')
+plt.ylabel('Proportion of IP addresses (%)')
 plt.title("Attacks by country - unique IP attacks\nFrom %s to %s (%s IPs)" % \
   (datestamp[0], datestamp[-1], len(IP_unique)))
 plt.xlim(countries_x[0]-1, countries_x[-1]+1)
 plt.savefig(filename_stub+"_country_hist_unique_IP.png", format='png', dpi=300)
 
-# Plot country histograms - unique subnet
+# Plot country histograms - unique subnet (yyyymmdd_fail2ban_country_hist_unique_subnet.png)
 pc_subnet_plot =[]
 countries_subnet_plot = []
 for ii in range(0,max_countries_plot):
@@ -526,7 +526,7 @@ for ii in range(0,max_countries_plot):
 fig, ax = plt.subplots(1)
 plt.bar(countries_x, pc_subnet_plot, align='center')
 plt.xticks(countries_x, countries_subnet_plot)
-plt.ylabel('Proportion of attacks (%)')
+plt.ylabel('Proportion of /24 subnets (%)')
 plt.title("Attacks by country - unique subnet (/24) attacks\nFrom %s to %s (%s subnets)" % \
   (datestamp[0], datestamp[-1], len(IP_unique_subnet)))
 plt.xlim(countries_x[0]-1, countries_x[-1]+1)
