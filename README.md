@@ -30,6 +30,7 @@ The wrapper shell script calls the two main Python scripts:
 - Python3 with standard modules + **matplotlib** and **geojson**
 - Standard Linux CLI tools including **curl**
 - (optional) A webserver for displaying map overlay (or view locally in browser)
+- (optional) A Mapbox API key (if using Mapbox version)
 - Only tested on Linux
 
 ## Inputs
@@ -37,7 +38,7 @@ The wrapper shell script calls the two main Python scripts:
 - Fail2ban logs to analyse. These may be rotated in Debian pattern (.1, .2, etc) or CentOS/Fedora (-yyyymmdd, etc). They will be un-rotated, uncompressed if they end .gz and appended in date order for analysis. Inside the logs, standard timestamps in form _'yyyy-mm-dd HH:MM:SS,'_ are required, and all logs matching pattern _fail2ban.log*_ in input directory will be analysed
 - A valid configuration file in _/etc/fail2ban_analyse.conf_ or relative path _config/fail2ban_analyse.conf_ specifying input and output directories - an example can be found in _config/_
 - (optional) auth or secure log(s) if SSH username analysis is required. If available in same input directory auth* and secure* in plain text format only will be analysed to find most common invalid usernames used in SSH login attempts
-- (optional) if using mapbox, a mapbox API key is free is required. Sign up for a free mapbox account using link below and paste the API key into the appropriately commented section in _attacker-map.html_. Alternatively, use the openstreetmap version _attacker-map-openstreetmap.html_ which requires no modification
+- (optional) if using Mapbox, a Mapbox API key is required. Sign up for a free Mapbox account using link below and paste the API key into the appropriately commented section in _attacker-map.html_. Alternatively, use the openstreetmap version _attacker-map-openstreetmap.html_ which requires no modification
 
 ## Outputs
 
