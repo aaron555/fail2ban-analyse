@@ -79,8 +79,7 @@ if [[ ! -z ${USERNAME_FILELIST} ]]; then
   # Filelist contains all uncompressed logs from either Debian or Fedora/CentOS systems - note variable unquoted to work with grep
   grep ssh ${USERNAME_FILELIST} | sed -n 's/.*invalid user \([^ ]*\).*/\1/p' | grep -v '\\(\[\^' | grep -v '^$' | sort > usernames.txt
 else
-  # Warn if no auth/secure logfiles found. In this case username analysis will be totally omitted
-  # Note code currently does not distinguish between "cannot access logs" (permissions) or "no failed logins found in logs" - both result in empty list of users
+  # Warn if no auth/secure logfiles found, or if cannot open. In this case username analysis will be totally omitted
   echo "WARNING: Could not find system logfiles to analyse usernames of failed SSH login attempts, username analysis unavailable"
 fi
 

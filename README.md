@@ -37,7 +37,7 @@ The wrapper shell script calls the two main Python scripts:
 
 - Fail2ban logs to analyse. These may be rotated in Debian pattern (.1, .2, etc) or CentOS/Fedora (-yyyymmdd, etc). They will be un-rotated, uncompressed if they end .gz and appended in date order for analysis. Inside the logs, standard timestamps in form _'yyyy-mm-dd HH:MM:SS,'_ are required, and all logs matching pattern _fail2ban.log*_ in input directory will be analysed
 - A valid configuration file in _/etc/fail2ban_analyse.conf_ or relative path _config/fail2ban_analyse.conf_ specifying input and output directories - an example can be found in _config/_
-- (optional) auth or secure log(s) if SSH username analysis is required. If available in same input directory auth* and secure* in plain text format only will be analysed to find most common invalid usernames used in SSH login attempts
+- (optional) auth or secure log(s) if SSH username analysis is required. If available in same input directory auth* and secure* in plain text format only will be analysed to find most common invalid usernames used in SSH login attempts. If logs not provided or accessible in uncompressed text format, username analysis outputs not available
 - (optional) if using Mapbox, a Mapbox API key is required. Sign up for a free Mapbox account using link below and paste the API key into the appropriately commented section in _attacker-map.html_. Alternatively, use the openstreetmap version _attacker-map-openstreetmap.html_ which requires no modification
 
 ## Outputs
@@ -49,7 +49,7 @@ In web directory (_web/_ or value of OUTPUT_DIR_WEB set in the config file):
 ```
 attacks-geojson.js - GeoJSON file containing IP, country, number of attacks for creating leaflet map overlay
 unauth-country.png - bar chart of attack origin by country, expressed as percentage
-unauth.png - bar chart showing number of attacks per day, and summary of worst offenders
+unauth.png - bar chart showing number of attacks per day, and summary of worst offending IPs and /24 subnets. Top 3 usernames failing if available
 ```
 
 (note _attacker-map.html_ and/or _attacker-map-openstreetmap.html_ will also be required in the web server directory in order to view map overlays)
@@ -63,15 +63,17 @@ yyyymmdd_fail2ban_attack_by_country_unique_subnet.csv - list of countries with a
 yyyymmdd_fail2ban_attack_IPs_all.csv - list of all attacks showing timestamp, IP, country, approximate coordinates
 yyyymmdd_fail2ban_attack_IPs_unique.csv - list of all attacks showing IP, number of attacks, country, approximate coordinates
 yyyymmdd_fail2ban_attack_IPs_unique_subnet.csv - list of all attacks showing IP subnet (grouping into /24), number of attacks, country, approximate coordinates
-yyyymmdd_fail2ban_attacks_per_day_bar.png - bar chart showing number of attacks per day, and summary of worst offenders (same as unauth.png)
+yyyymmdd_fail2ban_attacks_per_day_bar.png - bar chart showing number of attacks per day, and summary of worst offending IPs and /24 subnets. Top 3 usernames failing if available (same as unauth.png)
 yyyymmdd_fail2ban_country_hist_all.png - bar chart of attack origin by country, expressed as percentage (same as unauth-country.png)
 yyyymmdd_fail2ban_country_hist_unique_IP.png - bar chart of IP address origin by country, expressed as percentage
 yyyymmdd_fail2ban_country_hist_unique_subnet.png - bar chart of IP subnet (grouping into /24) origin by country, expressed as percentage
 yyyymmdd_fail2ban_log_analysis_summary.txt text summary of key results
 yyyymmdd_fail2ban_raw_attacker_info.txt - raw JSON results of ipinfo.io lookup - this may also be used as an input to avoid re-running lookup
-usernames.txt - (if valid uncompressed auth*/secure* logs found in input log directory, SSH only) a list of invalid usernames used in failed SSH access attempts
+usernames.txt - (if valid uncompressed auth*/secure* logs found in input log directory, SSH only) a list of invalid usernames used in failed SSH access attempts.
 ```
 (note country / coordinate info will not be available if nolookup option is used to prevent ipinfo.io lookups)
+(note usernames analysis is based purely on number of occurences of username in log with string "invalid user", and will not match up to number of occurences in fail2ban logs)
+
 
 ## Dependencies
 
