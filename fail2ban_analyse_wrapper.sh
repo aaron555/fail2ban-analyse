@@ -78,9 +78,10 @@ USERNAME_FILELIST=$(find "${F2B_LOG_DIR_ABS}" -maxdepth 1 \( -name "secure*" -o 
 if [[ ! -z ${USERNAME_FILELIST} ]]; then
   # Filelist contains all uncompressed logs from either Debian or Fedora/CentOS systems - note variable unquoted to work with grep
   grep ssh ${USERNAME_FILELIST} | sed -n 's/.*invalid user \([^ ]*\).*/\1/p' | grep -v '\\(\[\^' | grep -v '^$' | sort > usernames.txt
-fi
-if [[ ! -s usernames.txt ]]; then
-  echo "WARNING: Could not process system logfiles to find usernames of failed SSH login attempts, username analysis unavailable"
+else
+  # Warn if no auth/secure logfiles found. In this case username analysis will be totally omitted
+  # Note code currently does not distinguish between "cannot access logs" (permissions) or "no failed logins found in logs" - both result in empty list of users
+  echo "WARNING: Could not find system logfiles to analyse usernames of failed SSH login attempts, username analysis unavailable"
 fi
 
 # Run full fail2ban log analyis - fail2ban_analyse.py
