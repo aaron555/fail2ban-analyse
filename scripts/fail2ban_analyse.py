@@ -25,6 +25,7 @@
 # 12/01/2015 - First full version outputting CSV and PNG results
 # 25/01/2015 - Added compatibility with Fedora logs
 # 20/02/2020 - Converted to python3 (explicitly convert inputs from files to text and dict objects to lists)
+# 09/03/2020 - Bug fix for logs with less than 3 unique IPs, subnets or countries
 
 # Copyright (C) 2015, 2020 Aaron Lockton
 
@@ -175,10 +176,11 @@ num_attacks =[]
 for line in IP_unique:
   num_attacks.append(IP.count(line))
 sort_indices = sorted(range(len(num_attacks)), key=lambda k: num_attacks[k])
-worst_IPs = ("1-%s (%s); 2-%s (%s); 3-%s (%s)" % \
-  (IP_unique[sort_indices[-1]], num_attacks[sort_indices[-1]], \
-  IP_unique[sort_indices[-2]], num_attacks[sort_indices[-2]], \
-  IP_unique[sort_indices[-3]], num_attacks[sort_indices[-3]]))
+worst_IPs = ("1-%s (%s)" % (IP_unique[sort_indices[-1]], num_attacks[sort_indices[-1]]))
+if len(sort_indices) >= 2:
+  worst_IPs += ("; 2-%s (%s)" % (IP_unique[sort_indices[-2]], num_attacks[sort_indices[-2]]))
+if len(sort_indices) >= 3:
+  worst_IPs += ("; 3-%s (%s)" % (IP_unique[sort_indices[-3]], num_attacks[sort_indices[-3]]))
 print("Top 3 offenders: " +worst_IPs)
 # Write unique banned IPs to log (yyyymmdd_fail2ban_attack_IPs_unique.csv - no geolocation)
 print("Writing log of all UNIQUE attack IPs to %s" % IP_unique_filename)
@@ -206,10 +208,11 @@ num_attacks_subnet = []
 for line in IP_unique_subnet:
   num_attacks_subnet.append(IP_trim.count(line.rsplit(".",1)[0] + "."))
 sort_indices_subnet = sorted(range(len(num_attacks_subnet)), key=lambda k: num_attacks_subnet[k])
-worst_subnets =  ("1-%s.x (%s); 2-%s.x (%s); 3-%s.x (%s)" % \
-  (IP_unique_subnet[sort_indices_subnet[-1]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-1]], \
-  IP_unique_subnet[sort_indices_subnet[-2]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-2]], \
-  IP_unique_subnet[sort_indices_subnet[-3]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-3]]))
+worst_subnets =  ("1-%s.x (%s)" % (IP_unique_subnet[sort_indices_subnet[-1]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-1]]))
+if len(sort_indices_subnet) >= 2:
+  worst_subnets += ("; 2-%s.x (%s)" % (IP_unique_subnet[sort_indices_subnet[-2]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-2]]))
+if len(sort_indices_subnet) >= 3:
+  worst_subnets += ("; 3-%s.x (%s)" % (IP_unique_subnet[sort_indices_subnet[-3]].rsplit(".",1)[0], num_attacks_subnet[sort_indices_subnet[-3]]))
 print("Top 3 subnets (/24): " + worst_subnets)
 # Save logs of unique-subnet data (yyyymmdd_fail2ban_attack_IPs_unique_subnet.csv - no geolocation)
 IP_subnet_filename = filename_stub+"_attack_IPs_unique_subnet.csv"
@@ -473,13 +476,16 @@ with open(country_subnet_filename, "w") as f:
 
 # Complete summary log
 print("Updating summary log %s" % summary_filename)
+top_3_country_string = ("Top 3 countries for most attacks:  1 %s (%s)" % (countries_all[country_indices_all[0]], num_all[country_indices_all[0]]))
+if len(country_indices_all) >= 2:
+  top_3_country_string += ("; 2 %s (%s)" % (countries_all[country_indices_all[1]], num_all[country_indices_all[1]]))
+if len(country_indices_all) >= 3:
+  top_3_country_string += ("; 3 %s (%s)" % (countries_all[country_indices_all[2]], num_all[country_indices_all[2]]))
+top_3_country_string += "\n"
 with open(summary_filename, "a") as f:
   f.write("Attacks total number of countries: %s\n" % len(countries_all))
-  f.write("Top 3 countries for most attacks:  1 %s (%s); 2 %s (%s); 3 %s (%s)\n" % \
-  (countries_all[country_indices_all[0]], num_all[country_indices_all[0]], \
-  countries_all[country_indices_all[1]], num_all[country_indices_all[1]], \
-  countries_all[country_indices_all[2]], num_all[country_indices_all[2]]))
-  f.write("Analysis took %.1f seconds" % (time.time()-start_time))
+  f.write(top_3_country_string)
+  f.write("Analysis took %.1f seconds\n" % (time.time()-start_time))
 
 # Plot country histograms - all (yyyymmdd_fail2ban_country_hist_all.png)
 print("Plotting and saving graphs with country data...")
