@@ -298,7 +298,6 @@ ax.xaxis.set_major_formatter(dateFmt)
 plt.savefig(filename_stub+"_attacks_per_day_bar.png", format='png', dpi=300)
 
 # Country look-up
-warning_flag = 0
 if len(sys.argv) < 4:
   # No raw attack info file specified, do look-up
   print("Querying ipinfo.io for origin of all attacking IPs - THIS MAY TAKE SOME TIME!")
@@ -307,11 +306,12 @@ if len(sys.argv) < 4:
   for line in IP_unique:
     attacker_ele = subprocess.check_output("curl ipinfo.io/%s/geo" % line, shell=True)
     attacker_ele = attacker_ele.decode()
-    f.write(attacker_ele)
-    if "Rate limit exceeded" in attacker_ele and warning_flag == 0:
+    if "Rate limit exceeded" in attacker_ele:
       print("WARNING: ipinfo look-up allowance exceeded - try later or subscribe to paid service")
       print("See terms of service at ipinfo.io")
-      #warning_flag = 1
+      print("Abandoning IP geolocation lookup")
+      break
+    f.write(attacker_ele)
   f.close
   print("Completed ipinfo lookup - raw attacker info written to %s" % attacker_info_filename)
 elif sys.argv[3] == "nolookup":
@@ -334,8 +334,7 @@ attacker_info_lons = []
 with open(attacker_info_filename) as f:
   for line in f:
     if "Rate limit exceeded" in line and warning_flag == 0:
-      print("WARNING: ipinfo look-up allowance exceeded - try tomorrow or subscribe to paid service")
-      print("Note max free ipinfo look-ups is 1000 per day")
+      print("WARNING: ipinfo look-up allowance was exceeded - try tomorrow or subscribe to paid service - Note max free ipinfo look-ups is 1000 per day")
       warning_flag = 1
     split_line = line.split("\"")
     if "\"ip\":" in line:
@@ -384,8 +383,9 @@ if (len(IP_unique) == len(attacker_info_IPs) and len(IP_unique) == len(attacker_
     counter+= 1
   f.close
 else:
-  print("Country look-up data not available or incomplete - exiting")
-  sys.exit(1)
+  print("WARNING: Country look-up data not available or incomplete")
+  print(strftime("%Y-%m-%d_%H:%M:%S: All tasks except IP geolocation complete, exiting fail2ban log analysis", gmtime()))
+  sys.exit(0)
 
 # Use unique IP data as look-up table to add country to all-attack logs (yyyymmdd_fail2ban_attack_IPs_all.csv - including geolocation)
 print("Updating log of all attack IPs in %s to include location info" % IP_log_filename)

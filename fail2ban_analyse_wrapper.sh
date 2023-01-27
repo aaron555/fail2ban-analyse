@@ -95,8 +95,9 @@ fi
 echo "-------------------------------------------------------------------------------------------"
 
 # Move static content to web directory
-# NOTE - add any output files that are to be published on web server here - not as well as moving renames from datestamped format to static filename
+# NOTE - add any output files that are to be published on web server here - note as well as moving renames from datestamped format to static filename
 cp -v *_fail2ban_attacks_per_day_bar.png "${OUTPUT_DIR_WEB_ABS}/unauth.png"
+# This will error if ipinfo.io lookup failed
 cp -v *_fail2ban_country_hist_all.png "${OUTPUT_DIR_WEB_ABS}/unauth-country.png"
 
 if [[ -d "${OUTPUT_DIR_HISTORICAL_ABS}" ]]; then
