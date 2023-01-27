@@ -146,7 +146,8 @@ for ii in range(0, len(raw_log)):
   log_line = raw_log[ii]
   if "Ban " in log_line:
     IP_loc = log_line.find("Ban ")
-    IP.append(log_line[IP_loc+4:])
+    IP_extract = log_line[IP_loc+4:].split(" ", 1)[0]
+    IP.append(IP_extract)
     datestamp.append(log_line[0:19])
 # Check if log contains any valid timestamps
 if len(datestamp) == 0:
