@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Checking if the user running the script is root
+if [ "$EUID" -ne 0 ]
+  then echo "ERROR: Please run this script either as root or via sudo/doas"
+  exit
+fi
+
 echo "-------------------------------------------------------------------------------------------"
 echo "Fail2ban log analysis and visualisation wrapper process started"
 
