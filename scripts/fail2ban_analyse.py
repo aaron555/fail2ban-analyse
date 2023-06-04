@@ -304,7 +304,7 @@ if len(sys.argv) < 4:
   attacker_info_filename = filename_stub+"_raw_attacker_info.txt"
   f = open(attacker_info_filename, "w")
   for line in IP_unique:
-    attacker_ele = subprocess.check_output("curl ipinfo.io/%s/geo" % line, shell=True)
+    attacker_ele = subprocess.check_output("curl -s ipinfo.io/%s/geo" % line, shell=True)
     attacker_ele = attacker_ele.decode()
     if "Rate limit exceeded" in attacker_ele:
       print("WARNING: ipinfo look-up allowance exceeded - try later or subscribe to paid service")
